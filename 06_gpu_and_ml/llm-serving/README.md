@@ -1,5 +1,14 @@
-Trying to install from source:
+This runs:
+```modal run trtllm_qwen.py```
+but produces outputs with too many eos tokens, I'm stripping them out for now.
+
+See TODOs in *.py.
+
+Trying to install tensorrt_llm==0.17 but running into private nvidia gitlab wall with pip
+install, working on installing from source:
+
 ```
+modal shell trtllm_qwen.py
 wget https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.7.0/local_repo/nv-tensorrt-local-repo-ubuntu2204-10.7.0-cuda-12.6_1.0-1_amd64.deb
 cp /var/nv-tensorrt-local-repo-ubuntu2204-10.7.0-cuda-12.6/nv-tensorrt-local-F234AD55-keyring.gpg /usr/share/keyrings/
 dpkg -i nv-tensorrt-local-repo-ubuntu2204-10.7.0-cuda-12.6_1.0-1_amd64.deb 
