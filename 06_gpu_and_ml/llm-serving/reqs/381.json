@@ -1,0 +1,9 @@
+{
+  "temperature": 0,
+  "prompt": "## Task\nBelow is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nYou are a code completion assistant and your task is to analyze user edits and then rewrite an excerpt that the user provides, suggesting the appropriate edits within the excerpt, taking into account the cursor location.\n\n### Events:\nUser edited \"Cargo.toml\":\n```diff\n@@ -4,3 +4,4 @@\n edition = \"2021\"\n \n [dependencies]\n+                } else {\n\n```\n\nUser edited \"Cargo.toml\":\n```diff\n@@ -4,4 +4,4 @@\n edition = \"2021\"\n \n [dependencies]\n-                } else {\n+\n\n```\n\nUser edited \"Cargo.toml\":\n```diff\n@@ -5,3 +5,4 @@\n \n [dependencies]\n \n+s\n\\ No newline at end of file\n\n```\n\n### Input:\n```Cargo.toml\n<|start_of_file|>\n<|editable_region_start|>\n[package]\nname = \"example\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\n\ns<|user_cursor_is_here|>\n<|editable_region_end|>\n```\n\n### Response\n\n",
+  "rewrite_speculation": true,
+  "prediction": {
+    "content": "```Cargo.toml\n<|start_of_file|>\n<|editable_region_start|>\n[package]\nname = \"example\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\n\ns<|user_cursor_is_here|>\n<|editable_region_end|>\n```"
+  },
+  "max_tokens": 1024
+}

@@ -1,0 +1,9 @@
+{
+  "temperature": 0,
+  "prompt": "## Task\nBelow is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nYou are a code completion assistant and your task is to analyze user edits and then rewrite an excerpt that the user provides, suggesting the appropriate edits within the excerpt, taking into account the cursor location.\n\n### Events:\nUser edited \"build.rs\":\n```diff\n@@ -1,7 +1,7 @@\n fn main() {\n     println!(\"cargo:rerun-if-env-changed=RUST_FONTCONFIG_DLOPEN\");\n     let dlopen = std::env::var(\"RUST_FONTCONFIG_DLOPEN\").is_ok();\n-    self.\n+    se\n     if dlopen {\n         println!(\"cargo:rustc-cfg=feature=\\\"source-fontconfig-dlopen\\\"\");\n     }\n\n```\n\n### Input:\n```build.rs\n<|start_of_file|>\n<|editable_region_start|>\nfn main() {\n    println!(\"cargo:rerun-if-env-changed=RUST_FONTCONFIG_DLOPEN\");\n    let dlopen = std::env::var(\"RUST_FONTCONFIG_DLOPEN\").is_ok();\n    se<|user_cursor_is_here|>\n    if dlopen {\n        println!(\"cargo:rustc-cfg=feature=\\\"source-fontconfig-dlopen\\\"\");\n    }\n}\n\n<|editable_region_end|>\n```\n\n### Response\n\n",
+  "rewrite_speculation": true,
+  "prediction": {
+    "content": "```build.rs\n<|start_of_file|>\n<|editable_region_start|>\nfn main() {\n    println!(\"cargo:rerun-if-env-changed=RUST_FONTCONFIG_DLOPEN\");\n    let dlopen = std::env::var(\"RUST_FONTCONFIG_DLOPEN\").is_ok();\n    se<|user_cursor_is_here|>\n    if dlopen {\n        println!(\"cargo:rustc-cfg=feature=\\\"source-fontconfig-dlopen\\\"\");\n    }\n}\n\n<|editable_region_end|>\n```"
+  },
+  "max_tokens": 1024
+}
