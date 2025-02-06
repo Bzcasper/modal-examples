@@ -52,25 +52,28 @@
 # and the environment configuration necessary to run them.
 
 from typing import Optional
+import json
+from pathlib import Path
 
 import modal
 import pydantic  # for typing, used later
 
 tensorrt_image = modal.Image.from_registry(
     "nvidia/cuda:12.4.1-devel-ubuntu22.04",
-    add_python="3.10",  # TRT-LLM requires Python 3.10
+    add_python="3.12",  # TRT-LLM requires Python 3.12
 ).entrypoint([])  # remove verbose logging by base image on entry
 
 # On top of that, we add some system dependencies of TensorRT-LLM,
 # including OpenMPI for distributed communication, some core software like `git`,
 # and the `tensorrt_llm` package itself.
 
-GIT_HASH = "b0880169d0fb8cd0363049d91aa548e58a41be07"
+GIT_HASH = "311ba7dd153082d665dc3afa807f59d6495c9300"
 
 tensorrt_image = tensorrt_image.apt_install(
     "openmpi-bin", "libopenmpi-dev", "git", "git-lfs", "wget"
 ).pip_install(
-    "tensorrt_llm==0.14.0",
+    # "tensorrt_llm==0.14.0",
+    "tensorrt-llm==0.17.0.post1",
     "pynvml<12",  # avoid breaking change to pynvml version API
     pre=True,
     extra_index_url="https://pypi.nvidia.com",
@@ -315,8 +318,11 @@ class Model:
         )
         # and then we add it from the left, to minimize impact on the output
         self.tokenizer.padding_side = "left"
-        self.pad_id = self.tokenizer.pad_token_id
-        self.end_id = self.tokenizer.eos_token_id
+        # self.pad_id = self.tokenizer.pad_token_id
+        # self.end_id = self.tokenizer.eos_token_id
+        gen_config = json.loads(Path(MODEL_DIR + "/generation_config.json").read_text())
+        self.pad_id = gen_config['pad_token_id']
+        self.end_id = gen_config['eos_token_id']
 
         runner_kwargs = dict(
             engine_dir=f"{ENGINE_DIR}",
@@ -540,7 +546,7 @@ def extract_assistant_response(output_text):
 
     See this doc for LLaMA 3: https://llama.meta.com/docs/model-cards-and-prompt-formats/meta-llama-3/."""
     # Split the output text by the assistant header token
-    output_text = output_text.replace("<|im_end|>", "").strip()
+    # output_text = output_text.replace("<|im_end|>", "").strip()
     parts = output_text.split("<|start_header_id|>assistant<|end_header_id|>")
 
 
