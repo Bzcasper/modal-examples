@@ -89,7 +89,7 @@ HOURS = 60 * MINUTES
 
 @app.function(
     image=vllm_image,
-    gpu=f"H100:{N_GPU}",
+    gpu=modal.gpu.H100(count=N_GPU),
     container_idle_timeout=5 * MINUTES,
     timeout=24 * HOURS,
     allow_concurrent_inputs=1000,
@@ -97,6 +97,7 @@ HOURS = 60 * MINUTES
 )
 @modal.asgi_app()
 def serve():
+    print("starting serve")
     import fastapi
     import vllm.entrypoints.openai.api_server as api_server
     from vllm.engine.arg_utils import AsyncEngineArgs
@@ -108,8 +109,10 @@ def serve():
     )
     from vllm.entrypoints.openai.serving_engine import BaseModelPath
     from vllm.usage.usage_lib import UsageContext
+    print("finished import")
 
     volume.reload()  # ensure we have the latest version of the weights
+    print("finished reload")
 
     # create a fastAPI app that uses vLLM's OpenAI-compatible router
     web_app = fastapi.FastAPI(
@@ -118,6 +121,7 @@ def serve():
         version="0.0.1",
         docs_url="/docs",
     )
+    print("finished fasapi")
 
     # security: CORS middleware for external requests
     http_bearer = fastapi.security.HTTPBearer(
@@ -131,6 +135,7 @@ def serve():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    print("finished middleware")
 
     # security: inject dependency on authed routes
     async def is_authenticated(api_key: str = fastapi.Security(http_bearer)):
@@ -142,11 +147,13 @@ def serve():
         return {"username": "authenticated_user"}
 
     router = fastapi.APIRouter(dependencies=[fastapi.Depends(is_authenticated)])
+    print("finished apirouter")
 
     # wrap vllm's router in auth router
     router.include_router(api_server.router)
     # add authed vllm to our fastAPI app
     web_app.include_router(router)
+    print("finished add router")
 
     engine_args = AsyncEngineArgs(
         model=MODELS_DIR + "/" + MODEL_NAME,
@@ -155,10 +162,12 @@ def serve():
         max_model_len=8096,
         enforce_eager=False,  # capture the graph for faster inference, but slower cold starts (30s > 20s)
     )
+    print("finished engine arg")
 
     engine = AsyncLLMEngine.from_engine_args(
         engine_args, usage_context=UsageContext.OPENAI_API_SERVER
     )
+    print("finished engine")
 
     model_config = get_model_config(engine)
 
@@ -178,6 +187,7 @@ def serve():
         prompt_adapters=[],
         request_logger=request_logger,
     )
+    print("finished api-server.chat")
     api_server.completion = lambda s: OpenAIServingCompletion(
         engine,
         model_config=model_config,
@@ -186,6 +196,7 @@ def serve():
         prompt_adapters=[],
         request_logger=request_logger,
     )
+    print("finished api-server.completion")
 
     return web_app
 
