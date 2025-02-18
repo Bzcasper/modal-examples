@@ -31,8 +31,15 @@
 
 import modal
 
-vllm_image = modal.Image.debian_slim(python_version="3.12").pip_install(
-    "vllm==0.6.3post1", "fastapi[standard]==0.115.4"
+vllm_image = (
+    modal.Image.debian_slim(python_version="3.12").pip_install(
+        "vllm==0.7.2", 
+        "fastapi[standard]==0.115.4", 
+        "torch==2.5.1",
+    )
+    .run_commands(
+        "pip install flashinfer-python -i https://flashinfer.ai/whl/cu124/torch2.5/"
+    )
 )
 
 # ## Download the model weights
@@ -98,6 +105,7 @@ HOURS = 60 * MINUTES
 @modal.asgi_app()
 def serve():
     print("starting serve")
+    import time
     import fastapi
     import vllm.entrypoints.openai.api_server as api_server
     from vllm.engine.arg_utils import AsyncEngineArgs
@@ -107,11 +115,12 @@ def serve():
     from vllm.entrypoints.openai.serving_completion import (
         OpenAIServingCompletion,
     )
-    from vllm.entrypoints.openai.serving_engine import BaseModelPath
+    from vllm.entrypoints.openai.serving_models import BaseModelPath
+    # from vllm.entrypoints.openai.serving_engine import BaseModelPath
     from vllm.usage.usage_lib import UsageContext
     print("finished import")
 
-    volume.reload()  # ensure we have the latest version of the weights
+    # volume.reload()  # ensure we have the latest version of the weights
     print("finished reload")
 
     # create a fastAPI app that uses vLLM's OpenAI-compatible router
@@ -155,6 +164,8 @@ def serve():
     web_app.include_router(router)
     print("finished add router")
 
+    print("Cold starting inference")
+    start = time.monotonic_ns()
     engine_args = AsyncEngineArgs(
         model=MODELS_DIR + "/" + MODEL_NAME,
         tensor_parallel_size=N_GPU,
@@ -167,6 +178,8 @@ def serve():
     engine = AsyncLLMEngine.from_engine_args(
         engine_args, usage_context=UsageContext.OPENAI_API_SERVER
     )
+    duration_s = (time.monotonic_ns() - start) / 1e9
+    print(f"Engine started in {duration_s:.0f}s")
     print("finished engine")
 
     model_config = get_model_config(engine)

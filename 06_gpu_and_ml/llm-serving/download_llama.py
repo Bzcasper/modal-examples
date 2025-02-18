@@ -4,12 +4,15 @@
 
 import modal
 
-MODELS_DIR = "/llamas"
+# MODELS_DIR = "/llamas"
+MODELS_DIR = "/qwen"
 
-DEFAULT_NAME = "neuralmagic/Meta-Llama-3.1-8B-Instruct-quantized.w4a16"
-DEFAULT_REVISION = "a7c09948d9a632c2c840722f519672cd94af885d"
+DEFAULT_NAME = "Qwen/Qwen2-VL-7B-Instruct"
+DEFAULT_REVISION = "eed13092ef92e448dd6875b2a00151bd3f7db0ac"
+# DEFAULT_NAME = "neuralmagic/Meta-Llama-3.1-8B-Instruct-quantized.w4a16"
+# DEFAULT_REVISION = "a7c09948d9a632c2c840722f519672cd94af885d"
 
-volume = modal.Volume.from_name("llamas", create_if_missing=True)
+volume = modal.Volume.from_name("qwen", create_if_missing=True)
 
 image = (
     modal.Image.debian_slim(python_version="3.10")
