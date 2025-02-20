@@ -22,9 +22,9 @@ def perform_request(benchmark):
 
         # Warm up the TCP connection
         session = requests.Session()
-        # for _ in range(5):
-        #     print(f"Starting request at {time.monotonic()}")
-        #     session.post(URL, files = {"file": (AUDIO_FILES["long"], open(AUDIO_FILES["long"], "rb"), "audio/wav")})
+        for _ in range(5):
+            print(f"Starting request at {time.monotonic()}")
+            session.post(URL, files = {"file": (AUDIO_FILES["long"], open(AUDIO_FILES["long"], "rb"), "audio/wav")})
         
         def fn():
             files = {"file": (AUDIO_FILES[audio_type], open(AUDIO_FILES[audio_type], "rb"), "audio/wav")}

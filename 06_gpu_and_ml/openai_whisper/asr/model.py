@@ -36,8 +36,8 @@ logger = setup_logger()
 
 image = (
     Image.from_registry(
-        "nvidia/cuda:12.1.1-devel-ubuntu22.04",
-        add_python="3.10",
+        "nvidia/cuda:12.8.0-devel-ubuntu22.04",
+        add_python="3.12",
     )
     .apt_install(
       "openmpi-bin",
@@ -63,7 +63,8 @@ image = (
         "wget --directory-prefix=whisper_scripts https://raw.githubusercontent.com/NVIDIA/TensorRT-LLM/main/examples/whisper/tokenizer.py",
     ])
     .pip_install(  # add utilities for downloading the model
-        "tensorrt_llm==0.18.0.dev2025021101",
+        "tensorrt_llm==0.18.0.dev2025021101"    
+    ).pip_install(
         "evaluate~=0.4.1",
         "rouge_score~=0.1.2",
         "tiktoken",
@@ -111,7 +112,7 @@ image = (
                   --max_batch_size {MAX_BATCH_SIZE} \
                   --max_seq_len 114 \
                   --max_input_len 14 \
-                  --max_encoder_input_len 1500 \
+                  --max_encoder_input_len 3000 \
                   --gemm_plugin {INFERENCE_PRECISION} \
                   --bert_attention_plugin {INFERENCE_PRECISION} \
                   --remove_input_padding enable \
@@ -139,7 +140,7 @@ class Model:
 
         from run import WhisperTRTLLM
         from whisper.normalizers import EnglishTextNormalizer
-        self.whisper_model = WhisperTRTLLM(f"/{WHISPER_OUTPUT_DIR}", assets_dir=self.assets_dir, use_py_session=True)    
+        self.whisper_model = WhisperTRTLLM(f"/{WHISPER_OUTPUT_DIR}", assets_dir=self.assets_dir, batch_size = MAX_BATCH_SIZE)    
 
     @modal.asgi_app()
     def web(self):
@@ -174,6 +175,7 @@ class Model:
                 audio_data,
                 self.whisper_model,
                 mel_filters_dir=self.assets_dir,
+                padding_strategy="hhjvjhvk"
             )
             result_sentence = results[0][2]
             print(f"Left predict at {time.monotonic()}")
