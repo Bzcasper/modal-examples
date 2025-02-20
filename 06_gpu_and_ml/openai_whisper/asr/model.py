@@ -130,7 +130,7 @@ image = (
 
 app = modal.App("faster-whisper", image=image)
 
-@app.cls(keep_warm=1, allow_concurrent_inputs=1, concurrency_limit=1, gpu=GPU_CONFIG)
+@app.cls(keep_warm=1, allow_concurrent_inputs=1, concurrency_limit=1, gpu=GPU_CONFIG, region="us-east-1")
 class Model:
     @modal.enter()
     def enter(self):
