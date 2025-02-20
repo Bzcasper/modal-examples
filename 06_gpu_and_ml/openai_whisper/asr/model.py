@@ -9,8 +9,8 @@ INFERENCE_PRECISION = "float16"
 WEIGHT_ONLY_PRECISION = "int8"
 MAX_BEAM_WIDTH = 4
 MAX_BATCH_SIZE = 8
-WHISPER_OUTPUT_DIR = f"whisper_large_v3_weights_{WEIGHT_ONLY_PRECISION}"
-WHISPER_CHECKPOINT_DIR= f"whisper_large_v3_{WEIGHT_ONLY_PRECISION}"
+WHISPER_OUTPUT_DIR = f"whisper_large_v3_turbo_weights_{WEIGHT_ONLY_PRECISION}"
+WHISPER_CHECKPOINT_DIR= f"whisper_large_v3_turbo_{WEIGHT_ONLY_PRECISION}"
 
 DTYPE = "float16"
 PLUGIN_ARGS = f"--gemm_plugin={DTYPE} --gpt_attention_plugin={DTYPE}"
@@ -56,7 +56,7 @@ image = (
         "wget --directory-prefix=assets https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/multilingual.tiktoken",
         "wget --directory-prefix=assets https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/mel_filters.npz",
         "wget --directory-prefix=assets https://raw.githubusercontent.com/yuekaizhang/Triton-ASR-Client/main/datasets/mini_en/wav/1221-135766-0002.wav",
-        "wget --directory-prefix=assets https://openaipublic.azureedge.net/main/whisper/models/e5b1a55b89c1367dacf97e3e19bfd829a01529dbfdeefa8caeb59b3f1b81dadb/large-v3.pt",
+        "wget --directory-prefix=assets https://openaipublic.azureedge.net/main/whisper/models/aff26ae408abcba5fbf8813c21e62b0941638c5f6eebfb145be0c9839262a19a/large-v3-turbo.pt",
         
         "wget --directory-prefix=whisper_scripts https://raw.githubusercontent.com/NVIDIA/TensorRT-LLM/main/examples/whisper/convert_checkpoint.py",
         "wget --directory-prefix=whisper_scripts https://raw.githubusercontent.com/NVIDIA/TensorRT-LLM/main/examples/whisper/run.py",
@@ -84,6 +84,7 @@ image = (
             f"python whisper_scripts/convert_checkpoint.py \
                 --use_weight_only \
                 --weight_only_precision {WEIGHT_ONLY_PRECISION} \
+                --model_name large-v3-turbo \
                 --output_dir {WHISPER_CHECKPOINT_DIR}"
         ], gpu=GPU_CONFIG,
     )
@@ -175,7 +176,7 @@ class Model:
                 audio_data,
                 self.whisper_model,
                 mel_filters_dir=self.assets_dir,
-                padding_strategy="hhjvjhvk"
+                padding_strategy="hhjvjhvk" # any string that's not "longest" will do
             )
             result_sentence = results[0][2]
             print(f"Left predict at {time.monotonic()}")
